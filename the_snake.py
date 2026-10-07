@@ -1,5 +1,6 @@
-import pygame
 import random
+
+import pygame
 
 
 # Константы для размеров поля и сетки:
@@ -413,7 +414,7 @@ def main():
     snake = Snake()
     apple = Apple()
     fruit = InedibleFruit()
-    stones = [Stone() for _ in range(0, 4)]
+    stones = [Stone() for _ in range(4)]
 
     while True:
         clock.tick(SPEED)
