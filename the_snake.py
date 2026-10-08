@@ -114,8 +114,8 @@ class GameObject:
     def draw_cell(
             self,
             position,
-            body_color=WHITE,
-            border_color=WHITE,
+            body_color=BOARD_BACKGROUND_COLOR,
+            border_color=BORDER_COLOR,
             size=(GRID_SIZE, GRID_SIZE)
     ):
         """Отрисовка одной ячейки."""
@@ -267,6 +267,8 @@ class Snake(GameObject):
         self.next_direction = None
         self.positions = [self.position]
         self.last = None
+        screen.fill(BOARD_BACKGROUND_COLOR)
+        draw_lines()
 
     def move(self):
         """
@@ -307,7 +309,7 @@ class Snake(GameObject):
         )
 
         if self.last:
-            self.draw_cell(self.last, BOARD_BACKGROUND_COLOR, BORDER_COLOR)
+            self.draw_cell(self.last)
 
 
 def changing(snake, apple, fruit, stones):
@@ -316,6 +318,11 @@ def changing(snake, apple, fruit, stones):
 
     яблока, несъедобного фрукта, препятствия.
     """
+    apple.draw_cell(apple.position)
+    fruit.draw_cell(fruit.position)
+    for stone in stones:
+        stone.draw_cell(stone.position[0])
+        stone.draw_cell(stone.position[1])
     apple.randomize_position(snake.positions)
     fruit.randomize_position([*snake.positions, apple.position])
     for stone in stones:
@@ -341,6 +348,8 @@ def eating(snake, apple, fruit, stones) -> None:
     elif head == fruit.position:
         if snake.length > 1:
             snake.length -= 1
+            snake.draw_cell(snake.positions[-1])
+            snake.positions.pop()
             changing(snake, apple, fruit, stones)
         else:
             changing(snake, apple, fruit, stones)
@@ -382,6 +391,8 @@ def main():
     stones = [Stone(
         occupied=[*snake.positions, apple.position, fruit.position]
     ) for _ in range(4)]
+    screen.fill(BOARD_BACKGROUND_COLOR)
+    draw_lines()
 
     while True:
         clock.tick(SPEED)
@@ -390,8 +401,6 @@ def main():
         snake.move()
         is_clashing(snake, apple, fruit, stones)
         eating(snake, apple, fruit, stones)
-        screen.fill(BOARD_BACKGROUND_COLOR)
-        draw_lines()
         snake.draw()
         apple.draw()
         fruit.draw()
