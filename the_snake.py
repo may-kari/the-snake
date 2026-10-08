@@ -22,7 +22,8 @@ FUCHSIA = (255, 0, 255)
 DEEP_PINK = (255, 20, 147)
 SADDLE_BROWN = (139, 69, 19)
 DARK_SLATE_BLUE = (72, 61, 139)
-# Цвета игры:
+# Цвета игры (оставила, чтобы было понятно,
+# что хвост закрашивается цветами поля и сетки):
 BOARD_BACKGROUND_COLOR = PINK
 BORDER_COLOR = PALE_VIOLET_RED
 APPLE_COLOR = ORANGE_RED
@@ -110,6 +111,18 @@ class GameObject:
             f'Метод draw не определен в классе {self.__class__.__name__}'
         )
 
+    def draw_cell(
+            self,
+            position,
+            body_color=WHITE,
+            border_color=WHITE,
+            size=(GRID_SIZE, GRID_SIZE)
+    ):
+        """Отрисовка одной ячейки."""
+        rect = (pg.Rect(position, size))
+        pg.draw.rect(screen, body_color, rect)
+        pg.draw.rect(screen, border_color, rect, LINE_WIDTH)
+
 
 class Apple(GameObject):
     """
@@ -180,9 +193,12 @@ class Stone(Apple):
 
     def draw(self):
         """Отрисовка объекта в форме прямоугольника."""
-        rect = (pg.Rect(self.position[0], self.size))
-        pg.draw.rect(screen, self.body_color, rect)
-        pg.draw.rect(screen, BORDER_COLOR, rect, 1)
+        self.draw_cell(
+            self.position[0],
+            self.body_color,
+            BORDER_COLOR,
+            self.size
+        )
 
     def randomize_position(self, occupied):
         """
@@ -209,7 +225,7 @@ class Stone(Apple):
                     [(x + y - GRID_SIZE) for x, y in zip(position, size)]
                 )
             ]
-            if result not in occupied:
+            if all(cell not in occupied for cell in result):
                 self.position, self.size = result, size
                 break
 
@@ -224,7 +240,7 @@ class Snake(GameObject):
     движение объекта, обновление направления движения.
     """
 
-    def __init__(self, body_color=FUCHSIA):
+    def __init__(self, body_color=FUCHSIA, border_color=DEEP_PINK):
         """
         Инициализация нового игрового объекта - змеи.
 
@@ -237,6 +253,7 @@ class Snake(GameObject):
         last: координаты последнего сегмента.
         """
         super().__init__(body_color=body_color)
+        self.border_color = border_color
         self.reset()
 
     def get_head_position(self):
@@ -283,18 +300,14 @@ class Snake(GameObject):
         Затирание хвоста для создания видимости движения змеи.
         """
         for position in self.positions[1:]:
-            rect = (pg.Rect(position, (GRID_SIZE, GRID_SIZE)))
-            pg.draw.rect(screen, self.body_color, rect)
-            pg.draw.rect(screen, DEEP_PINK, rect, LINE_WIDTH)
+            self.draw_cell(position, self.body_color, self.border_color)
 
-        head_rect = pg.Rect(self.get_head_position(), (GRID_SIZE, GRID_SIZE))
-        pg.draw.rect(screen, self.body_color, head_rect)
-        pg.draw.rect(screen, SNAKE_BORDER_COLOR, head_rect, LINE_WIDTH)
+        self.draw_cell(
+            self.get_head_position(), self.body_color, self.border_color
+        )
 
         if self.last:
-            last_rect = pg.Rect(self.last, (GRID_SIZE, GRID_SIZE))
-            pg.draw.rect(screen, BOARD_BACKGROUND_COLOR, last_rect)
-            pg.draw.rect(screen, BORDER_COLOR, last_rect, LINE_WIDTH)
+            self.draw_cell(self.last, BOARD_BACKGROUND_COLOR, BORDER_COLOR)
 
 
 def changing(snake, apple, fruit, stones):
