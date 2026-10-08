@@ -1,8 +1,7 @@
 import random
+import sys
 
 import pygame as pg
-
-import sys
 
 # Константы для размеров поля и сетки:
 SCREEN_WIDTH, SCREEN_HEIGHT = 640, 480
@@ -134,10 +133,11 @@ class Apple(GameObject):
     Положительно влияет на рост змеи.
     """
 
-    def __init__(self, body_color=ORANGE_RED, occupied=[]):
+    def __init__(self, body_color=ORANGE_RED, occupied=None):
         """Инициализация нового игрового объекта."""
         super().__init__(body_color=body_color)
-        self.randomize_position(occupied)
+        self.occupied = occupied if occupied is not None else []
+        self.randomize_position(self.occupied)
 
     def draw(self):
         """Отрисовка объекта в форме круга."""
@@ -174,8 +174,8 @@ class InedibleFruit(Apple):
 
     def __init__(self, body_color=SADDLE_BROWN, occupied=None):
         """Инициализация нового игрового объекта."""
-        super().__init__(body_color=body_color)
-        self.randomize_position(occupied)
+        super().__init__(body_color=body_color, occupied=occupied)
+        self.randomize_position(self.occupied)
 
 
 class Stone(Apple):
@@ -188,8 +188,8 @@ class Stone(Apple):
 
     def __init__(self, body_color=DARK_SLATE_BLUE, occupied=None):
         """Инициализация нового игрового объекта."""
-        super().__init__(body_color=body_color)
-        self.randomize_position(occupied)
+        super().__init__(body_color=body_color, occupied=occupied)
+        self.randomize_position(self.occupied)
 
     def draw(self):
         """Отрисовка объекта в форме прямоугольника."""
